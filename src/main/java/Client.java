@@ -24,13 +24,23 @@ public class Client {
             new Thread(this::listen);
             System.out.printf("%s, welcome to chat!\n", name);
             while (true) {
-                System.out.printf("%s:", name);
+                System.out.printf("%s: ", name);
                 String msg = scanner.nextLine();
+                if (msg.equals("/exit")) {
+                    socketChannel.close();
+                    break;
+                }
                 socketChannel.write(ByteBuffer.wrap((name + ": " + msg + "\n").getBytes(StandardCharsets.UTF_8)));
             }
 
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                socketChannel.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
