@@ -21,26 +21,19 @@ public class Client {
         try (Scanner scanner = new Scanner(System.in)) {
             System.out.println("Enter your name:");
             name = scanner.nextLine();
-            new Thread(this::listen);
-            System.out.printf("%s, welcome to chat!\n", name);
+            new Thread(this::listen).start();
+            System.out.printf("%s, welcome to chat! Enter you message into console.\n", name);
             while (true) {
-                System.out.printf("%s: ", name);
                 String msg = scanner.nextLine();
                 if (msg.equals("/exit")) {
                     socketChannel.close();
                     break;
                 }
-                socketChannel.write(ByteBuffer.wrap((name + ": " + msg + "\n").getBytes(StandardCharsets.UTF_8)));
+                socketChannel.write(ByteBuffer.wrap((name + ": " + msg).getBytes(StandardCharsets.UTF_8)));
             }
 
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            try {
-                socketChannel.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
     }
 
