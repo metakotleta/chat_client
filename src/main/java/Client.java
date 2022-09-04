@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousCloseException;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -18,7 +19,6 @@ public class Client {
     private String name;
     private ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
     private ByteBuffer buffer = ByteBuffer.allocate(2048);
-    private Thread listenThread;
 
     public Client(String name) throws IOException {
         this.name = name;
@@ -32,9 +32,9 @@ public class Client {
 
             Thread listenThread = new Thread(this::listen, "listenThread");
             listenThread.start();
-            while (!listenThread.isAlive()) {
+            while (true) {
                 String msg = scanner.nextLine();
-                if (msg.equals("/exit")) {
+                if (msg.equals("/exit") || listenThread.isInterrupted()) {
                     socketChannel.close();
                     break;
                 }
@@ -61,6 +61,8 @@ public class Client {
                 socketChannel.close();
                 System.err.println(se.getMessage());
                 Thread.currentThread().interrupt();
+            } catch (AsynchronousCloseException as) {
+                socketChannel.close();
             }
         } catch (IOException e) {
             e.printStackTrace();

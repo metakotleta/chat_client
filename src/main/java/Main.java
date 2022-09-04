@@ -5,10 +5,8 @@ public class Main {
 
         try {
             Client client = new Client("Vasya");
-            Thread clientThread = new Thread(null, client::start, "client");
-            clientThread.start();
-            clientThread.join();
-        } catch (IOException | InterruptedException e) {
+            client.start();
+        } catch (IOException  e) {
             e.printStackTrace();
         }
     }
